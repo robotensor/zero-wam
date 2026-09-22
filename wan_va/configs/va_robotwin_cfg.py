@@ -61,9 +61,11 @@ va_robotwin_cfg.icl_height = 320
 va_robotwin_cfg.icl_width = 480
 va_robotwin_cfg.icl_fps = 12
 
-va_robotwin_cfg.num_inference_steps = 50
+va_robotwin_cfg.num_inference_steps = int(os.environ.get("NUM_INFERENCE_STEPS", "50"))
 va_robotwin_cfg.video_exec_step = -1
-va_robotwin_cfg.action_num_inference_steps = 50
+va_robotwin_cfg.action_num_inference_steps = int(
+    os.environ.get("ACTION_NUM_INFERENCE_STEPS", "50")
+)
 
 va_robotwin_cfg.snr_shift = 5.0
 va_robotwin_cfg.action_snr_shift = 1.0

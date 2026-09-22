@@ -50,6 +50,8 @@ class VA_Server:
         self.dtype = job_config.param_dtype
         self.device = torch.device(f"cuda:{job_config.local_rank}")
         self.enable_offload = getattr(job_config, 'enable_offload', True)  # offload vae & text_encoder to save vram
+        # The text encoder only runs once per reset; keeping it alone on CPU frees ~11 GB.
+        self.offload_text_encoder = self.enable_offload or os.environ.get("OFFLOAD_TEXT_ENCODER", "0") == "1"
 
         self.scheduler = FlowMatchScheduler(shift=self.job_config.snr_shift,
                                             sigma_min=0.0,
@@ -76,7 +78,7 @@ class VA_Server:
         self.text_encoder = load_text_encoder(
             resolve_model_component(model_root, 'text_encoder'),
             torch_dtype=self.dtype,
-            torch_device='cpu' if self.enable_offload else self.device,
+            torch_device='cpu' if self.offload_text_encoder else self.device,
         )
 
         empty_text_emb_path = getattr(job_config, "empty_text_emb_path", "")
