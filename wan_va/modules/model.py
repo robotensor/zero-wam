@@ -29,7 +29,12 @@ from functools import partial
 try:
     from flash_attn_interface import flash_attn_func
 except:
-    from flash_attn import flash_attn_func
+    try:
+        from flash_attn import flash_attn_func
+    except ImportError:
+        # Only attn_mode='flashattn' needs this; the ICL model uses flex attention.
+        def flash_attn_func(*args, **kwargs):
+            raise ImportError("flash_attn is not installed; use attn_mode='torch' or 'flex'")
 
 __all__ = ['WanTransformer3DModel']
 
