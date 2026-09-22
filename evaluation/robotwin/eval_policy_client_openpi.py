@@ -660,6 +660,7 @@ def eval_policy(task_name,
                 first_obs = format_obs(observation, prompt)
 
             ret = model.infer(dict(obs=first_obs, prompt=prompt, save_visualization=save_visualization, video_guidance_scale=video_guidance_scale, action_guidance_scale=action_guidance_scale)) #(TASK_ENV, model, observation)
+            print(f"[timing] infer_chunk: {ret['server_timing']['infer_ms']:.1f} ms", flush=True)
             action = ret['action']
             if 'video' in ret:
                 imagined_video = ret['video']
@@ -704,8 +705,9 @@ def eval_policy(task_name,
                     
             first = False
 
-            model.infer(dict(obs = key_frame_list, compute_kv_cache=True, imagine=False, save_visualization=save_visualization, state=action))
-  
+            kv_ret = model.infer(dict(obs = key_frame_list, compute_kv_cache=True, imagine=False, save_visualization=save_visualization, state=action))
+            print(f"[timing] kv_cache: {kv_ret['server_timing']['infer_ms']:.1f} ms", flush=True)
+
             if TASK_ENV.eval_success:
                 succ = True
                 break
